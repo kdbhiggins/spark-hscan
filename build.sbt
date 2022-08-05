@@ -8,20 +8,22 @@ developers ++= List(
   Developer("ShakirzyanovArsen", " Arsen Shakirzyanov", "arsen@napalabs.ru", url("https://github.com/ShakirzyanovArsen"))
 )
 
-lazy val sparkVersion = "2.3.2"
-
+lazy val sparkVersion = "3.3.0"
+// lazy val sparkVersion = "3.1.1"
+// 3.1.1
 artifactName := { (sv: ScalaVersion, module: ModuleID, artifact: Artifact) =>
   Artifact.artifactName(sv, module, artifact).replaceAll(s"-${module.revision}", s"-${sparkVersion}${module.revision}")
 }
 
 version := "0.1"
 
-scalaVersion := "2.11.12"
+scalaVersion := "2.13.8"
+// scalaVersion := "2.12.10"
 libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % Test,
   "org.apache.spark" %% "spark-sql" % sparkVersion % Provided,
-  "org.scalatest" %% "scalatest" % "3.0.8" % Test,
-  "com.gliwka.hyperscan" % "hyperscan" % "1.0.0"
+  "org.scalatest" %% "scalatest" % "3.0.8" % Test
+  // "com.gliwka.hyperscan" % "hyperscan" % "1.0.0"
 )
 
 parallelExecution in Test := false

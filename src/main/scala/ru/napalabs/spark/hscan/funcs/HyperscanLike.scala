@@ -1,7 +1,8 @@
 package ru.napalabs.spark.hscan.funcs
 
 import org.apache.commons.lang3.StringEscapeUtils
-import org.apache.spark.sql.catalyst.expressions.codegen.{CodegenContext, ExprCode}
+import org.apache.spark.sql.catalyst.expressions.codegen._
+import org.apache.spark.sql.catalyst.expressions.codegen.Block._
 import org.apache.spark.sql.catalyst.expressions.{BinaryExpression, Expression, ExpressionDescription, ImplicitCastInputTypes, NullIntolerant}
 import org.apache.spark.sql.catalyst.util.GenericArrayData
 import org.apache.spark.sql.types.{BooleanType, DataType, DataTypes, StringType}
@@ -64,19 +65,19 @@ case class HyperscanLike(left: Expression, right: Expression) extends BinaryExpr
 
         val eval = left.genCode(ctx)
         ev.copy(code =
-          s"""
+          code"""
            ${eval.code}
            boolean ${ev.isNull} = ${eval.isNull};
-           ${ctx.javaType(dataType)} ${ev.value} = ${ctx.defaultValue(dataType)};
+           ${CodeGenerator.javaType(dataType)} ${ev.value} = ${CodeGenerator.defaultValue(dataType)};
            if (!${ev.isNull}) {
             ${ev.value} = !$scannerVariable.scan($dbVariable, ${eval.value}.toString()).isEmpty();
            }
            """)
       } else {
         ev.copy(code =
-          s"""
+          code"""
             boolean ${ev.isNull} = true;
-            ${ctx.javaType(dataType)} ${ev.value} = ${ctx.defaultValue(dataType)}
+            ${CodeGenerator.javaType(dataType)} ${ev.value} = ${CodeGenerator.defaultValue(dataType)}
            """)
       }
     } else {
@@ -85,4 +86,7 @@ case class HyperscanLike(left: Expression, right: Expression) extends BinaryExpr
   }
 
   override def toString: String = s"$left HLIKE $right"
+  override protected def withNewChildrenInternal(newLeft: Expression, newRight: Expression): HyperscanLike =
+    copy(left = newLeft, right = newRight)
+
 }
